@@ -54,34 +54,21 @@ Check progress and get results of a generation job by `job_id`. Returns asset do
 
 Check remaining credits, subscription tier, and concurrent job limit on the connected account. Use this before batch generating to know how many credits you have and how many jobs you can run at once.
 
-### download_asset
+## Downloading Assets
 
-Download a generated asset as base64-encoded PNG. **Always use this tool to save assets** instead of manually constructing HTTP requests with `curl` or `Invoke-WebRequest`.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `asset_id` | string (required) | - | The asset ID from a generation result |
-| `format` | string | "pixel" | "pixel" (pixel-processed) or "raw" (original HD render) |
-
-Returns `base64_png` (a base64-encoded string) and a suggested `filename`. The response also includes `save_instructions` with ready-to-use commands.
-
-**How to save the file:** Take the `base64_png` string, decode it from base64 to raw bytes, and write those bytes to a `.png` file. Do NOT try to analyze or interpret the bytes - just decode and save.
+Each generated asset in the response includes a `pixel_url` (direct download link). Use this URL to download and save the PNG file into your project.
 
 **PowerShell:**
 ```powershell
-[IO.File]::WriteAllBytes("assets/$filename", [Convert]::FromBase64String($base64_png))
+Invoke-WebRequest -Uri $pixel_url -OutFile "assets/sprite.png"
 ```
 
 **Bash / macOS:**
 ```bash
-echo "$base64_png" | base64 -d > "assets/$filename"
+curl -sL -o "assets/sprite.png" "$pixel_url"
 ```
 
-**Python:**
-```python
-import base64
-open(f"assets/{filename}", "wb").write(base64.b64decode(base64_png))
-```
+Use the asset's `display_name` or `id` to create a meaningful filename. The URLs are temporary (expire after ~1 hour), so download promptly after generation.
 
 ## Autonomous Workflow
 
@@ -91,7 +78,7 @@ When a user is building a game, proactively identify and generate needed assets.
 2. **Identify required assets** from the game description (characters, items, tiles, UI, icons)
 3. **Generate a hero asset first** (e.g. the main character) to establish the art style
 4. **Use `reference_asset_id`** with the hero asset's ID for subsequent generations to maintain visual consistency
-5. **Download the assets** using `download_asset(asset_id=...)` and save the decoded PNG files into the project's asset directory
+5. **Download the assets** from the `pixel_url` in each result and save the PNG files into the project's asset directory
 6. **Reference the saved files** in the game code
 
 Example: User says "make a fishing game" -> check credits -> generate the player character first -> use that asset ID as `reference_asset_id` for fish, rod, boat, etc. -> all assets share the same art style -> download and place in project.
