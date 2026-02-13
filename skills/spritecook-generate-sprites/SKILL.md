@@ -63,15 +63,24 @@ Download a generated asset as base64-encoded PNG. **Always use this tool to save
 | `asset_id` | string (required) | - | The asset ID from a generation result |
 | `format` | string | "pixel" | "pixel" (pixel-processed) or "raw" (original HD render) |
 
-Returns `base64_png` - decode it and write as binary to a `.png` file. Also returns a suggested `filename`.
+Returns `base64_png` (a base64-encoded string) and a suggested `filename`. The response also includes `save_instructions` with ready-to-use commands.
 
-**Example (saving the file):**
+**How to save the file:** Take the `base64_png` string, decode it from base64 to raw bytes, and write those bytes to a `.png` file. Do NOT try to analyze or interpret the bytes - just decode and save.
+
+**PowerShell:**
+```powershell
+[IO.File]::WriteAllBytes("assets/$filename", [Convert]::FromBase64String($base64_png))
+```
+
+**Bash / macOS:**
+```bash
+echo "$base64_png" | base64 -d > "assets/$filename"
+```
+
+**Python:**
 ```python
 import base64
-# result = download_asset(asset_id="...")
-data = base64.b64decode(result["base64_png"])
-with open(f"assets/{result['filename']}", "wb") as f:
-    f.write(data)
+open(f"assets/{filename}", "wb").write(base64.b64decode(base64_png))
 ```
 
 ## Autonomous Workflow
