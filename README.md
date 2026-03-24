@@ -1,6 +1,6 @@
 # SpriteCook Agent Skills
 
-Agent skills for [SpriteCook](https://spritecook.ai) - AI-powered game asset generation. These skills teach AI coding agents how to generate pixel art and detailed/HD game art including sprites, characters, items, tilesets, and more using SpriteCook's MCP tools.
+Agent skills for [SpriteCook](https://spritecook.ai) - AI-powered game asset generation. These skills teach AI coding agents how to generate pixel art and detailed/HD game art, including sprites, characters, items, tilesets, short animations, and more using SpriteCook's MCP tools.
 
 Skills follow the open [Agent Skills](https://agentskills.io/) standard and work across all compatible editors.
 
@@ -11,6 +11,7 @@ Skills follow the open [Agent Skills](https://agentskills.io/) standard and work
 Generate sprites and game assets from text prompts. Teaches the agent to:
 
 - Generate production-ready pixel art or detailed/HD game art (characters, items, tilesets, UI, backgrounds)
+- Animate existing game art with motion-specific prompts
 - Choose the right art style (pixel vs detailed) based on the game's needs
 - Maintain visual consistency across assets using style references
 - Download and save generated assets into your project

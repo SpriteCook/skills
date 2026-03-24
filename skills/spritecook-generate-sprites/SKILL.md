@@ -5,13 +5,14 @@ description: Generate sprites and game assets using the SpriteCook MCP tools. Us
 
 # SpriteCook - AI Game Asset Generator
 
-Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, game assets, icons, tilesets, textures, or UI elements for a game project. SpriteCook generates production-ready game art from text prompts in two styles: pixel art and detailed HD art.
+Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, game assets, icons, tilesets, textures, UI elements, or short image-to-animation game clips for a project. SpriteCook generates production-ready game art from text prompts in two styles: pixel art and detailed HD art, and can animate existing images.
 
 **Requires:** SpriteCook MCP server connected to your editor. Set up with `npx spritecook-mcp setup` or see [spritecook.ai](https://spritecook.ai).
 
 ## When to Use
 
 - User asks to generate, create, or make sprites, pixel art, detailed art, game assets, or icons
+- User asks to animate an existing sprite, prop, or game asset
 - User is building a game and needs visual assets (characters, items, environments, UI)
 - User references sprites, pixel art, HD art, or game art in their request
 - A game project needs consistent visual assets across multiple types
@@ -71,9 +72,36 @@ Both pixel art and detailed mode default to `gemini-2.5-flash-image` (fast, good
 - **`gemini-2.5-flash-image`** (default): Fast generation, good quality, standard credit cost.
 - **`gemini-3-pro-image-preview`**: Higher quality results with more detail and consistency, but costs 2x credits. Use when the user wants the best possible output or when standard results aren't meeting expectations.
 
+### animate_game_art
+
+Animate an existing image into a short pixel-art or detailed animation. Waits up to 90s for the result, and falls back to returning a job id when the animation is still running.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `image` | string (required) | - | Base64 image or data URL to animate |
+| `prompt` | string (required) | - | Describe the exact motion over time, not just the asset |
+| `pixel` | bool | true | True for pixel animation, false for detailed animation |
+| `output_frames` | int | 8 | Even frame count. Pixel supports 2-16, detailed supports 2-24 |
+| `output_format` | string | "webp" | "webp", "gif", or "spritesheet" |
+| `negative_prompt` | string | null | Optional motion/content exclusions |
+| `matte_color` | string | "#808080" | Hex matte color used before processing transparency |
+| `removebg` | string | "Basic" | "None", "Basic", or "Pro" background removal before returning. Pro costs extra per frame |
+| `colors` | int | 24 | Pixel palette size. Only valid when `pixel=true` |
+
+Animation prompts should be explicit about the motion arc. Good prompts describe:
+- what moves
+- how it moves
+- direction and timing
+- loop behavior
+- what should stay stable
+
+Good example: `subtle idle bob, cloak sways gently left and right, two-frame breathing in the chest, feet stay planted, clean seamless loop`
+
+Weak example: `idle animation`
+
 ### check_job_status
 
-Check progress and get results of a generation job by `job_id`. Returns asset download URLs when complete.
+Check progress and get results of a generation or animation job by `job_id`. Still-image jobs return `assets`. Animation jobs return `output` with the animation asset id, preview/download URL, spritesheet URL, content type, and metadata.
 
 ### get_credit_balance
 
@@ -107,6 +135,14 @@ When a user is building a game, proactively identify and generate needed assets.
 6. **Download the assets** from the `pixel_url` in each result and save the PNG files into the project's asset directory
 7. **Reference the saved files** in the game code
 
+For animation requests:
+
+1. Use `animate_game_art` when the user already has a source image and wants motion
+2. Write a motion-specific prompt that describes the action frame-to-frame
+3. Include `removebg: "Basic"` by default when the user wants a clean transparent result
+4. Use `removebg: "Pro"` only when the user explicitly wants the higher-quality paid cleanup
+5. If the tool returns a queued/running job, follow up with `check_job_status(job_id=...)`
+
 Example: User says "make a fishing game" -> check credits -> generate the player character first -> use that asset ID as `reference_asset_id` for fish, rod, boat, etc. -> all assets share the same art style -> download and place in project.
 
 Use `edit_asset_id` when the user wants to iterate on a specific asset (e.g. "make the sword larger" or "change the color of the helmet").
@@ -127,6 +163,7 @@ If you receive a 429 error (concurrent job limit), wait for the active job to co
 | Backgrounds | width: 256-512, aspect_ratio: "16:9", bg_mode: "include" |
 
 - Be specific in prompts: "a red dragon breathing fire, side view, single sprite" beats "dragon"
+- For animation prompts, describe the motion precisely: "torch flame flickers upward, slight left-right sway, loop cleanly" beats "torch animation"
 - Use `reference_asset_id` to keep consistent art style across all assets in a project
 - Use `theme` and `colors` for additional style and palette consistency
 - Set `variations: 2-3` when you want options to pick from
