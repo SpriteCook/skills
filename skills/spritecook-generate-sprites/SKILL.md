@@ -5,7 +5,7 @@ description: Generate sprites and game assets using the SpriteCook MCP tools. Us
 
 # SpriteCook - AI Game Asset Generator
 
-Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, game assets, icons, tilesets, textures, UI elements, or short image-to-animation game clips for a project. SpriteCook generates production-ready game art from text prompts in two styles: pixel art and detailed HD art, and can animate existing images.
+Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, game assets, icons, tilesets, textures, UI elements, or short image-to-animation game clips for a project. SpriteCook generates production-ready game art from text prompts in two styles: pixel art and detailed HD art, and can animate existing SpriteCook assets.
 
 **Requires:** SpriteCook MCP server connected to your editor. Set up with `npx spritecook-mcp setup` or see [spritecook.ai](https://spritecook.ai).
 
@@ -74,19 +74,83 @@ Both pixel art and detailed mode default to `gemini-2.5-flash-image` (fast, good
 
 ### animate_game_art
 
-Animate an existing image into a short pixel-art or detailed animation. Waits up to 90s for the result, and falls back to returning a job id when the animation is still running.
+Animate an existing SpriteCook asset into a short pixel-art or detailed animation. This tool expects `asset_id` and should not be treated as a raw base64 transport path. Waits up to 90s for the result, and falls back to returning a job id when the animation is still running.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `image` | string (required) | - | Base64 image or data URL to animate |
+| `asset_id` | string (required) | - | Existing SpriteCook asset ID to animate. The asset must belong to the authenticated SpriteCook account |
 | `prompt` | string (required) | - | Describe the exact motion over time, not just the asset |
-| `pixel` | bool | true | True for pixel animation, false for detailed animation |
+| `pixel` | bool | null | Optional animation mode override. If omitted, SpriteCook infers the mode from the asset |
 | `output_frames` | int | 8 | Even frame count. Pixel supports 2-16, detailed supports 2-24 |
 | `output_format` | string | "webp" | "webp", "gif", or "spritesheet" |
 | `negative_prompt` | string | null | Optional motion/content exclusions |
 | `matte_color` | string | "#808080" | Hex matte color used before processing transparency |
 | `removebg` | string | "Basic" | "None", "Basic", or "Pro" background removal before returning. Pro costs extra per frame |
 | `colors` | int | 24 | Pixel palette size. Only valid when `pixel=true` |
+
+Workflow for agents:
+
+1. If the user already has a SpriteCook asset, pass its `asset_id` directly to `animate_game_art`.
+2. If the user only has a local image file or data URL, first call `POST /v1/api/assets/import` through the regular SpriteCook API with the same SpriteCook API key to create an asset.
+3. Use the returned `asset_id` from that upload step in `animate_game_art`.
+4. Keep `pixel` omitted unless you need to force a mode.
+
+The upload step is the place where the source image is imported into SpriteCook. It is not the animation call itself.
+
+Agent persistence guidance:
+
+- When working inside a real game project or codebase, persist important SpriteCook `asset_id` values in a local project manifest so they can be reused later without asking the user to look them up in the SpriteCook UI.
+- This is especially useful for:
+  - assets you may animate later
+  - assets you may use as `reference_asset_id`
+  - assets you may use as `edit_asset_id`
+  - hero assets that define the project style
+- Prefer a simple machine-readable file in the workspace, for example `spritecook-assets.json`, unless the project already has an asset manifest.
+- For each saved asset, include at least:
+  - `asset_id`
+  - local file path or saved filename
+  - prompt
+  - whether it is `pixel` or detailed
+  - dimensions
+  - a short purpose label such as `player_idle_source`, `enemy_slime_ref`, or `coin_ui_icon`
+- Before generating a new reference asset or asking the user for an asset id, check the local manifest first.
+- When the user request is one-off and not tied to a real project workspace, you do not need to create a manifest.
+
+Source size rules:
+
+- `POST /v1/api/assets/import` creates the SpriteCook source asset from base64 image data or a data URL.
+- The imported source should still respect the animation constraints the agent intends to use next.
+- For animation, small source assets should stay in pixel mode.
+- Pixel animation is the correct choice for assets up to `256x256`.
+- Detailed animation is the correct choice for assets between `256x256` and `2048x2048`.
+- Do not force a sub-256 source into detailed mode.
+
+Import example:
+
+```http
+POST /v1/api/assets/import
+Authorization: Bearer sc_live_...
+Content-Type: application/json
+
+{
+  "image": "data:image/png;base64,...",
+  "pixel": true,
+  "display_name": "duck"
+}
+```
+
+Typical response fields to retain in the manifest:
+
+```json
+{
+  "id": "7a9d3f31-...",
+  "display_name": "duck",
+  "file_name": "duck",
+  "width": 128,
+  "height": 128,
+  "pixel_url": "https://..."
+}
+```
 
 Animation prompts should be explicit about the motion arc. Good prompts describe:
 - what moves
@@ -107,21 +171,42 @@ Check progress and get results of a generation or animation job by `job_id`. Sti
 
 Check remaining credits, subscription tier, and concurrent job limit on the connected account. Use this before batch generating to know how many credits you have and how many jobs you can run at once.
 
+## Expected Timing
+
+Use these as practical expectations when planning work:
+
+- Average sprite generation time: about 20 seconds
+- Average animation time: about 120 seconds
+
+Animation is a long-running operation compared to still-image generation. If the client can continue working in the background, start the animation, keep the returned `job_id`, and come back with `check_job_status(job_id=...)` instead of blocking on it.
+
 ## Downloading Assets
 
-Each generated asset in the response includes a `pixel_url` (direct download link). Use this URL to download and save the PNG file into your project.
+Each generated asset in the response includes both authenticated API URLs and, when available, presigned download URLs.
+
+Download preference for agents:
+
+- Prefer `_presigned_pixel_url` when saving the pixel PNG
+- Prefer `_presigned_url` when saving the raw/original image
+- Use `pixel_url`, `raw_url`, `download_pixel_url`, or `download_raw_url` only when you can send the SpriteCook API auth header with the request
+
+If you download from `/v1/assets/.../download` without auth, you may save a JSON error body instead of an image file.
 
 **PowerShell:**
 ```powershell
-Invoke-WebRequest -Uri $pixel_url -OutFile "assets/sprite.png"
+Invoke-WebRequest -Uri $presigned_pixel_url -OutFile "assets/sprite.png"
 ```
 
 **Bash / macOS:**
 ```bash
-curl -sL -o "assets/sprite.png" "$pixel_url"
+curl -sL -o "assets/sprite.png" "$presigned_pixel_url"
 ```
 
-Use the asset's `display_name` or `id` to create a meaningful filename. The URLs are temporary (expire after ~1 hour), so download promptly after generation.
+Use the asset's `display_name` or `id` to create a meaningful filename. Presigned URLs are temporary (expire after about 1 hour), so download promptly after generation.
+
+If a downloaded "image" is suspiciously tiny or fails to open, inspect the file contents before proceeding. It may be an auth error or JSON response that was saved with an image filename.
+
+Assets remain saved in SpriteCook on the user's account, but when working on a real game project you should usually download them into the project immediately and keep a reference to the corresponding `asset_id`. That gives the project an immediate local copy while still preserving the SpriteCook asset for later animation, editing, and style reuse.
 
 ## Autonomous Workflow
 
@@ -132,16 +217,21 @@ When a user is building a game, proactively identify and generate needed assets.
 3. **Decide pixel vs detailed** based on the game's art style or the user's preference
 4. **Generate a hero asset first** (e.g. the main character) to establish the art style
 5. **Use `reference_asset_id`** with the hero asset's ID for subsequent generations to maintain visual consistency
-6. **Download the assets** from the `pixel_url` in each result and save the PNG files into the project's asset directory
-7. **Reference the saved files** in the game code
+6. **Download the assets** from `_presigned_pixel_url` when available and save the PNG files into the project's asset directory
+7. **Persist the returned asset ids** in a local manifest such as `spritecook-assets.json`
+8. **Reference the saved files** in the game code
+9. **Treat animation as a background step** when possible. Kick it off, keep the `job_id`, and continue with other project work until polling is needed.
 
 For animation requests:
 
-1. Use `animate_game_art` when the user already has a source image and wants motion
-2. Write a motion-specific prompt that describes the action frame-to-frame
-3. Include `removebg: "Basic"` by default when the user wants a clean transparent result
-4. Use `removebg: "Pro"` only when the user explicitly wants the higher-quality paid cleanup
-5. If the tool returns a queued/running job, follow up with `check_job_status(job_id=...)`
+1. Use `animate_game_art` only with an existing SpriteCook `asset_id`
+2. If you only have local image bytes, import them first through `POST /v1/api/assets/import`
+3. Check the source dimensions before sending, and choose pixel vs detailed mode accordingly
+4. Prefer reusing an asset id from the local project manifest before asking the user for one
+5. Write a motion-specific prompt that describes the action frame-to-frame
+6. Include `removebg: "Basic"` by default when the user wants a clean transparent result
+7. Use `removebg: "Pro"` only when the user explicitly wants the higher-quality paid cleanup
+8. If the tool returns a queued/running job, follow up with `check_job_status(job_id=...)`
 
 Example: User says "make a fishing game" -> check credits -> generate the player character first -> use that asset ID as `reference_asset_id` for fish, rod, boat, etc. -> all assets share the same art style -> download and place in project.
 

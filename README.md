@@ -11,10 +11,13 @@ Skills follow the open [Agent Skills](https://agentskills.io/) standard and work
 Generate sprites and game assets from text prompts. Teaches the agent to:
 
 - Generate production-ready pixel art or detailed/HD game art (characters, items, tilesets, UI, backgrounds)
-- Animate existing game art with motion-specific prompts
+- Import a source image through `POST /v1/api/assets/import`, receive an `asset_id`, and animate that asset instead of sending large base64 blobs through MCP
+- Animate existing SpriteCook assets with motion-specific prompts while respecting source size and mode rules
+- Persist important generated/imported `asset_id` values in a local project manifest so the agent can later animate, edit, or reuse them as references without asking the user to look them up
+- Treat animation as a longer-running step than sprite generation, and keep `job_id` references so background-capable agents can continue other work while polling later
 - Choose the right art style (pixel vs detailed) based on the game's needs
 - Maintain visual consistency across assets using style references
-- Download and save generated assets into your project
+- Download and save generated assets into your project while also keeping the matching SpriteCook `asset_id` for later reuse
 - Autonomously identify and create all assets needed for a game
 
 ## Installation
