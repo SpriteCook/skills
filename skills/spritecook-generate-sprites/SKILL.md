@@ -9,6 +9,13 @@ Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, gam
 
 **Requires:** SpriteCook MCP server connected to your editor. Set up with `npx spritecook-mcp setup` or see [spritecook.ai](https://spritecook.ai).
 
+## Credential Safety
+
+- Never ask the user to paste a SpriteCook API key into chat, prompts, code blocks, shell commands, or generated files.
+- Never print, persist, echo, or inline API keys or `Authorization` headers in agent output.
+- Prefer SpriteCook MCP tools, presigned URLs, or a preconfigured local connector/helper that already handles authentication outside the prompt.
+- If a raw API call is required and no authenticated connector/helper is available, stop and ask the user to configure one rather than improvising secret handling in the conversation.
+
 ## When to Use
 
 - User asks to generate, create, or make sprites, pixel art, detailed art, game assets, or icons
@@ -91,7 +98,7 @@ Animate an existing SpriteCook asset into a short pixel-art or detailed animatio
 Workflow for agents:
 
 1. If the user already has a SpriteCook asset, pass its `asset_id` directly to `animate_game_art`.
-2. If the user only has a local image file or data URL, first call `POST /v1/api/assets/import` through the regular SpriteCook API with the same SpriteCook API key to create an asset.
+2. If the user only has a local image file or data URL, import it through a preconfigured SpriteCook connector, local helper, or existing authenticated workflow that handles secrets outside the prompt and returns an `asset_id`.
 3. Use the returned `asset_id` from that upload step in `animate_game_art`.
 4. Keep `pixel` omitted unless you need to force a mode.
 
@@ -118,18 +125,17 @@ Agent persistence guidance:
 
 Source size rules:
 
-- `POST /v1/api/assets/import` creates the SpriteCook source asset from base64 image data or a data URL.
+- A SpriteCook import step creates the source asset from base64 image data or a data URL.
 - The imported source should still respect the animation constraints the agent intends to use next.
 - For animation, small source assets should stay in pixel mode.
 - Pixel animation is the correct choice for assets up to `256x256`.
 - Detailed animation is the correct choice for assets between `256x256` and `2048x2048`.
 - Do not force a sub-256 source into detailed mode.
 
-Import example:
+Import example via a preconfigured authenticated helper:
 
 ```http
 POST /v1/api/assets/import
-Authorization: Bearer sc_live_...
 Content-Type: application/json
 
 {
@@ -182,15 +188,15 @@ Animation is a long-running operation compared to still-image generation. If the
 
 ## Downloading Assets
 
-Each generated asset in the response includes both authenticated API URLs and, when available, presigned download URLs.
+Each generated asset in the response may include both authenticated API URLs and, when available, presigned download URLs.
 
 Download preference for agents:
 
 - Prefer `_presigned_pixel_url` when saving the pixel PNG
 - Prefer `_presigned_url` when saving the raw/original image
-- Use `pixel_url`, `raw_url`, `download_pixel_url`, or `download_raw_url` only when you can send the SpriteCook API auth header with the request
+- Avoid direct authenticated download endpoints in skill-driven workflows unless a preconfigured connector/helper handles auth out of band
 
-If you download from `/v1/assets/.../download` without auth, you may save a JSON error body instead of an image file.
+If you try an authenticated download endpoint without the required out-of-band auth handling, you may save a JSON error body instead of an image file.
 
 **PowerShell:**
 ```powershell
@@ -225,7 +231,7 @@ When a user is building a game, proactively identify and generate needed assets.
 For animation requests:
 
 1. Use `animate_game_art` only with an existing SpriteCook `asset_id`
-2. If you only have local image bytes, import them first through `POST /v1/api/assets/import`
+2. If you only have local image bytes, import them first through a preconfigured authenticated SpriteCook helper or connector
 3. Check the source dimensions before sending, and choose pixel vs detailed mode accordingly
 4. Prefer reusing an asset id from the local project manifest before asking the user for one
 5. Write a motion-specific prompt that describes the action frame-to-frame
