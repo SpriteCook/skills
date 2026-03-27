@@ -1,6 +1,6 @@
 ---
 name: spritecook-generate-sprites
-description: Workflow guide for SpriteCook game art generation. Use when SpriteCook MCP tools are available and the task needs more than a one-off prompt: safe downloading via presigned URLs, local asset manifests, style consistency with reference assets, and import-to-animation pipelines that avoid auth mistakes.
+description: "Workflow guide for SpriteCook game art generation. Use when SpriteCook MCP tools are available and the task needs more than a one-off prompt: safe downloading via presigned URLs, local asset manifests, style consistency with reference assets, and import-to-animation pipelines that avoid auth mistakes."
 ---
 
 # SpriteCook - AI Game Asset Generator
