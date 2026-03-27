@@ -15,7 +15,7 @@ Always apply these before or immediately after using the raw SpriteCook MCP tool
 
 1. Check credits first with `get_credit_balance` before starting a batch or a multi-asset workflow.
 2. Prefer presigned download URLs over authenticated asset endpoints to avoid saving auth error bodies as tiny fake image files.
-3. Save important `asset_id` values in a local manifest when the work belongs to a real project, especially when the assets may be reused for reference, editing, or animation later.
+3. Save important `asset_id` values in a local manifest whenever there is a writable workspace, unless the user explicitly asks for a throwaway result. Store a 12-character SHA-256 prefix (`sha12`) for each saved local file.
 
 ## Credential Safety
 
@@ -33,6 +33,7 @@ Always apply these before or immediately after using the raw SpriteCook MCP tool
 - User references sprites, pixel art, HD art, or game art in their request
 - A game project needs consistent visual assets across multiple types
 - The agent needs to avoid common SpriteCook mistakes such as authenticated download failures, missing local asset tracking, or inconsistent style across multiple generations
+- The request starts as ad hoc, but there is a writable workspace and the generated assets may later be reused, edited, or animated
 
 ## Available Tools
 
@@ -116,22 +117,26 @@ The upload step is the place where the source image is imported into SpriteCook.
 
 Agent persistence guidance:
 
-- When working inside a real game project or codebase, persist important SpriteCook `asset_id` values in a local project manifest so they can be reused later without asking the user to look them up in the SpriteCook UI.
+- When there is a writable workspace, persist important SpriteCook `asset_id` values in a local project manifest by default so they can be reused later without asking the user to look them up in the SpriteCook UI.
+- Only skip persistence when the user explicitly says the result is throwaway or temporary.
 - This is especially useful for:
   - assets you may animate later
   - assets you may use as `reference_asset_id`
   - assets you may use as `edit_asset_id`
   - hero assets that define the project style
 - Prefer a simple machine-readable file in the workspace, for example `spritecook-assets.json`, unless the project already has an asset manifest.
-- For each saved asset, include at least:
+- Treat `asset_id` as the primary stable identifier.
+- Treat `sha12` as the local file lookup key. `sha12` should be the first 12 hexadecimal characters of the file's SHA-256 digest.
+- Prefer a minimal manifest entry shape:
   - `asset_id`
-  - local file path or saved filename
-  - prompt
-  - whether it is `pixel` or detailed
-  - dimensions
-  - a short purpose label such as `player_idle_source`, `enemy_slime_ref`, or `coin_ui_icon`
+  - `sha12`
+  - optional `label`
+- Use a short purpose label such as `player_idle_source`, `enemy_slime_ref`, or `coin_ui_icon` when there is an obvious stable name for the asset.
+- Do not rely on stored file paths as the source of truth. Users may rename or move files, which makes path metadata stale.
+- Prefer appending/updating manifest entries after each successful generation, import, animation, or download step rather than waiting until the end.
 - Before generating a new reference asset or asking the user for an asset id, check the local manifest first.
-- When the user request is one-off and not tied to a real project workspace, you do not need to create a manifest.
+- Before reusing a local file that the user points to, compute its `sha12` and match it against the manifest to recover the correct `asset_id`.
+- If no `sha12` entry matches, treat the file as a new local source asset and import it before animation or editing.
 
 Source size rules:
 
@@ -165,6 +170,20 @@ Typical response fields to retain in the manifest:
   "width": 128,
   "height": 128,
   "pixel_url": "https://..."
+}
+```
+
+Suggested manifest shape:
+
+```json
+{
+  "assets": [
+    {
+      "asset_id": "7a9d3f31-...",
+      "sha12": "8f3c2d91b4e7",
+      "label": "player_idle_source"
+    }
+  ]
 }
 ```
 
@@ -234,7 +253,7 @@ When a user is building a game, proactively identify and generate needed assets.
 4. **Generate a hero asset first** (e.g. the main character) to establish the art style
 5. **Use `reference_asset_id`** with the hero asset's ID for subsequent generations to maintain visual consistency
 6. **Download the assets** from `_presigned_pixel_url` when available and save the PNG files into the project's asset directory
-7. **Persist the returned asset ids** in a local manifest such as `spritecook-assets.json`
+7. **Persist the returned asset ids** in a local manifest such as `spritecook-assets.json` even for ad hoc work when a writable workspace exists
 8. **Reference the saved files** in the game code
 9. **Treat animation as a background step** when possible. Kick it off, keep the `job_id`, and continue with other project work until polling is needed.
 
