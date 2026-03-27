@@ -1,6 +1,6 @@
 ---
 name: spritecook-generate-sprites
-description: Generate sprites and game assets using the SpriteCook MCP tools. Use when building games and the user needs sprites, pixel art, detailed art, characters, items, tilesets, textures, icons, or UI elements. Also use when asked to create, generate, or make game art assets.
+description: Workflow guide for SpriteCook game art generation. Use when SpriteCook MCP tools are available and the task needs more than a one-off prompt: safe downloading via presigned URLs, local asset manifests, style consistency with reference assets, and import-to-animation pipelines that avoid auth mistakes.
 ---
 
 # SpriteCook - AI Game Asset Generator
@@ -8,6 +8,14 @@ description: Generate sprites and game assets using the SpriteCook MCP tools. Us
 Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, game assets, icons, tilesets, textures, UI elements, or short image-to-animation game clips for a project. SpriteCook generates production-ready game art from text prompts in two styles: pixel art and detailed HD art, and can animate existing SpriteCook assets.
 
 **Requires:** SpriteCook MCP server connected to your editor. Set up with `npx spritecook-mcp setup` or see [spritecook.ai](https://spritecook.ai).
+
+## Preflight Checklist
+
+Always apply these before or immediately after using the raw SpriteCook MCP tools:
+
+1. Check credits first with `get_credit_balance` before starting a batch or a multi-asset workflow.
+2. Prefer presigned download URLs over authenticated asset endpoints to avoid saving auth error bodies as tiny fake image files.
+3. Save important `asset_id` values in a local manifest when the work belongs to a real project, especially when the assets may be reused for reference, editing, or animation later.
 
 ## Credential Safety
 
@@ -18,11 +26,13 @@ Use SpriteCook MCP tools when the user needs pixel art, detailed/HD sprites, gam
 
 ## When to Use
 
+- SpriteCook MCP tools are already available, but the task needs workflow guidance rather than a single direct tool call
 - User asks to generate, create, or make sprites, pixel art, detailed art, game assets, or icons
 - User asks to animate an existing sprite, prop, or game asset
 - User is building a game and needs visual assets (characters, items, environments, UI)
 - User references sprites, pixel art, HD art, or game art in their request
 - A game project needs consistent visual assets across multiple types
+- The agent needs to avoid common SpriteCook mistakes such as authenticated download failures, missing local asset tracking, or inconsistent style across multiple generations
 
 ## Available Tools
 

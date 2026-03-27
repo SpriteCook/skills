@@ -8,9 +8,10 @@ Skills follow the open [Agent Skills](https://agentskills.io/) standard and work
 
 ### spritecook-generate-sprites
 
-Generate sprites and game assets from text prompts. Teaches the agent to:
+Workflow guide for SpriteCook game art generation. Teaches the agent to:
 
 - Generate production-ready pixel art or detailed/HD game art (characters, items, tilesets, UI, backgrounds)
+- Use a short preflight workflow: check credits, prefer presigned download URLs, and save reusable asset IDs in a local manifest
 - Import a source image through `POST /v1/api/assets/import`, receive an `asset_id`, and animate that asset instead of sending large base64 blobs through MCP
 - Animate existing SpriteCook assets with motion-specific prompts while respecting source size and mode rules
 - Persist important generated/imported `asset_id` values in a local project manifest so the agent can later animate, edit, or reuse them as references without asking the user to look them up
