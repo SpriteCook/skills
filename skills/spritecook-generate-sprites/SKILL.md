@@ -41,9 +41,17 @@ Generate game art assets from a text prompt. Supports both pixel art and detaile
 
 - Be specific about subject, pose, camera/view angle, and key materials.
 - Default to pixel art unless the user asks for HD, detailed, smooth, realistic, or high-res output.
-- Use `reference_asset_id` for style consistency across a set.
+- When the user wants the same character or item in multiple outputs, generate one canonical still asset first and reuse that asset ID.
+- Use `reference_asset_id` for follow-up generations that should keep the same character or visual style.
 - Use `edit_asset_id` only when modifying an existing SpriteCook asset.
+- Do not generate multiple independent still variations when the real goal is one consistent character plus later animations.
 - Prefer `smart_crop_mode="tightest"` unless the user explicitly asks for `"power_of_2"`.
+
+## Consistency Rules
+
+- For a motion set like idle, walk, attack, or hurt: generate the base character once, then animate that exact `asset_id` separately for each motion.
+- For asset variations that should stay recognizably the same design, prefer `edit_asset_id` or `reference_asset_id` over a brand-new unreferenced generation.
+- Only skip a reference when the user explicitly wants different designs to explore.
 
 ## Pixel Art vs Detailed Art
 

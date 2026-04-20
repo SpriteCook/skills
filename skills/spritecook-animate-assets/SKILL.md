@@ -38,6 +38,12 @@ Animate an existing SpriteCook asset into a short pixel-art or detailed animatio
 
 The import step is where the source image enters SpriteCook. It is not the animation call itself.
 
+## Consistency Rules
+
+- Always animate the exact source asset that represents the intended character or object.
+- If the user asks for multiple motions for one character, run separate animation jobs against the same `asset_id` for `Idle`, `Walk`, `Attack`, and so on.
+- Do not create a new still image for each motion unless the user explicitly wants different character designs.
+
 ## Source Rules
 
 - Pixel animation is the correct choice for assets up to `256x256`.
