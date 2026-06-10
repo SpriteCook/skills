@@ -34,6 +34,15 @@ Animation workflow guidance:
 - Write grounded, character-specific motion prompts
 - Use `auto_enhance_prompt=true` when simple prompts like `Idle` or `Attack` are enough
 
+### spritecook-use-assets-in-godot
+
+Godot export workflow guidance:
+
+- Export completed character animation runs into Godot 4.x projects
+- Materialize SpriteCook MCP `text_files` and `asset_downloads` manifests
+- Set up SpriteFrames importer files and ready-to-test player scenes
+- Use `AnimatedSprite2D` for platformer exports and `AnimatedSprite3D` for top-down/isometric exports
+
 ## Installation
 
 ### Quick install (all compatible editors)
