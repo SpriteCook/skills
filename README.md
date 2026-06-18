@@ -13,6 +13,8 @@ Shared workflow rules for SpriteCook:
 - Check credits before larger runs
 - Prefer presigned download URLs
 - Save reusable `asset_id` values in a local manifest
+- Import local image data with `import_asset`
+- Rename useful assets with `update_asset_label`
 - Use `smart_crop_mode="tightest"` by default
 - Use `gemini-3.1-flash-image-preview` as the recommended default model
 
@@ -29,7 +31,8 @@ Still-image generation guidance:
 
 Animation workflow guidance:
 
-- Import local images first and animate by `asset_id`
+- Import local images with `import_asset`, then animate by `asset_id`
+- Use `remove_background` for transparent cutouts when needed
 - Use `edge_margin=6` by default for safer framing
 - Write grounded, character-specific motion prompts
 - Use `auto_enhance_prompt=true` when simple prompts like `Idle` or `Attack` are enough
