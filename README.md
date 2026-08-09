@@ -27,6 +27,15 @@ Still-image generation guidance:
 - Keep style consistency with `reference_asset_id`
 - Use `edit_asset_id` only when modifying an existing SpriteCook asset
 
+### spritecook-build-ui-kits
+
+Concept-first UI system guidance:
+
+- Build complete menus, HUDs, inventories, dialogs, settings screens, and overlays
+- Reuse an existing SpriteCook concept asset ID or generate/select a coherent concept
+- Generate transparent component sheets, extract named controls and states, and finalize 9-slice metadata
+- Keep normal `mode="ui"` generation focused on individual UI elements
+
 ### spritecook-animate-assets
 
 Animation workflow guidance:
