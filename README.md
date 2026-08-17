@@ -11,12 +11,14 @@ Skills follow the open [Agent Skills](https://agentskills.io/) standard and work
 Shared workflow rules for SpriteCook:
 
 - Check credits before larger runs
-- Prefer presigned download URLs
+- Follow asynchronous generation polling contracts
+- Use canonical `sprite_url` and optional `spritesheet_url` outputs
 - Save reusable `asset_id` values in a local manifest
-- Import local image data with `import_asset`
+- Upload local image files through SpriteCook MCP asset-upload tools
+- Import small data URLs with `import_asset`
 - Rename useful assets with `update_asset_label`
 - Use `smart_crop_mode="tightest"` by default
-- Use `gemini-3.1-flash-image-preview` as the recommended default model
+- Use `gemini-3.1-flash-image` as the recommended default model
 
 ### spritecook-generate-sprites
 
@@ -40,7 +42,7 @@ Concept-first UI system guidance:
 
 Animation workflow guidance:
 
-- Import local images with `import_asset`, then animate by `asset_id`
+- Upload local image files, then animate by the returned `asset_id`
 - Use `remove_background` for transparent cutouts when needed
 - Use `edge_margin=6` by default for safer framing
 - Write grounded, character-specific motion prompts
@@ -91,6 +93,7 @@ Works with any editor that supports the Agent Skills standard:
 - Claude Desktop
 - Antigravity
 - Codex
+- Grok Build
 - Windsurf
 - And more
 
