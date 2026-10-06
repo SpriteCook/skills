@@ -18,7 +18,7 @@ Shared workflow rules for SpriteCook:
 - Import small data URLs with `import_asset`
 - Rename useful assets with `update_asset_label`
 - Use `smart_crop_mode="tightest"` by default
-- Use `gemini-3.1-flash-image` as the recommended default model
+- Use Nano Banana 2.1 (`gemini-nano-banana-2.1`) as the recommended default for new pixel-art sprites and characters
 
 ### spritecook-generate-sprites
 
