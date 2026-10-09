@@ -29,6 +29,16 @@ Still-image generation guidance:
 - Keep style consistency with `reference_asset_id`
 - Use `edit_asset_id` only when modifying an existing SpriteCook asset
 
+### spritecook-polish-sprites
+
+Post-generation outline and transparency cleanup:
+
+- Understand why background removal can leave broken outlines or missing edge pixels
+- Inspect saved alpha-cutoff settings and download the preserved source once
+- Compare thresholds locally with the bundled Python/Pillow helper
+- Save the chosen cutoff through MCP without rerunning a provider or spending credits
+- Polish sheets before slicing and inspect animation frames for edge flicker
+
 ### spritecook-build-ui-kits
 
 Concept-first UI system guidance:
