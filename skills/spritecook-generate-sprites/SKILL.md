@@ -7,7 +7,7 @@ description: "Still-image generation guide for SpriteCook. Use with spritecook-w
 
 Use this skill for still-image generation. Pair it with `spritecook-workflow-essentials` for credits, manifests, safe downloads, and shared defaults.
 
-**Requires:** SpriteCook MCP server connected to your editor. Set up with `npx spritecook-mcp setup` or see [spritecook.ai](https://spritecook.ai).
+**Requires:** A connected SpriteCook MCP server. If disconnected, explain that connection is needed and use the host's native connection flow when authorized. Do not install software or change authentication settings as part of an art task.
 
 For a complete UI screen or cohesive UI system, stop and use `spritecook-build-ui-kits` instead. The UI-kit workflow creates one coherent concept before extracting reusable controls and states. Keep `generate_game_art(mode="ui")` for one isolated icon, badge, button, control, divider, frame, or decoration.
 
