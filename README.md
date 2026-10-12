@@ -19,7 +19,7 @@ Shared workflow rules for SpriteCook:
 - Rename useful assets with `update_asset_label`
 - Use `smart_crop_mode="tightest"` by default
 - Use Nano Banana 2.1 (`gemini-nano-banana-2.1`) as the recommended default for new pixel-art sprites and characters
-- Let the user know when a newer SpriteCook plugin is available
+- Check plugin versions when the user asks about updates or compatibility
 
 ### spritecook-generate-sprites
 
