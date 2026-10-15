@@ -191,10 +191,12 @@ Check a guided character animation run by id. Returns run status, item statuses,
 - Crisp hard edges, no anti-aliasing, visible pixel grid
 - Automatic pixel-perfect post-processing for clean grid alignment
 - Best for retro games, indie games, and 8-bit/16-bit projects
+- Gemini models are highly recommended, in particular Nano Banana 2.1 (`gemini-nano-banana-2.1`), Nano Banana Pro (`gemini-3-pro-image`), or newer Gemini image models
 
 **Detailed/HD art** (`pixel: false`):
 - Smooth gradients, fine detail, anti-aliased edges
 - Higher fidelity output without pixel grid constraints
 - Best for HD 2D games, concept art, and marketing assets
+- GPT image models are generally a bit stronger for complex detailed art, but Gemini and GPT models both work well here
 
 Choose based on the game's art direction. When the user does not specify, default to pixel art.

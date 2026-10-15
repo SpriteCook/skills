@@ -9,7 +9,7 @@ Use this alongside the SpriteCook image or animation skill when the user request
 
 **Requires:** A connected SpriteCook MCP server. If disconnected, use the host's native SpriteCook connection flow. For editors without native connection support, explain the documented setup options only when setup is needed; do not install or run setup software without the user's request.
 
-SpriteCook skills version: 2026.10.12
+SpriteCook skills version: 2026.10.15
 
 ## Task Scope and Tool Results
 
@@ -85,6 +85,7 @@ SpriteCook skills version: 2026.10.12
 - For several related props, items, or decorations, or when aiming for smaller pixel art, follow the grid-generation guidance in `spritecook-generate-sprites`: generate a 3×3 or 4×4 sheet, set pixel-art dimensions for each piece, then slice and animate individual assets as needed.
 - Prefer `smart_crop_mode="tightest"` for the best default results. Use `"power_of_2"` only when the user explicitly asks for it.
 - Use Nano Banana 2.1 (`model="gemini-nano-banana-2.1"`) as the recommended default for new pixel-art sprites and base characters. Use `pixel=true` for `generate_game_art`; `generate_character` already uses pixel-art settings.
+- Gemini models are highly recommended for pixel art, in particular Nano Banana 2.1 (`gemini-nano-banana-2.1`), Nano Banana Pro (`gemini-3-pro-image`), or newer Gemini image models. GPT image models are generally a bit stronger for complex detailed art (`pixel=false`), but Gemini and GPT models both work well there.
 - Preserve an explicit user model choice, a saved preset's model, or an edit workflow's inherited model. Nano Banana 2 (`gemini-3.1-flash-image`) is an older option, not the default for new pixel art.
 - Call `list_generation_models` for current availability, pixel-art support, resolution limits, and credit costs. If NB2.1 is unavailable, choose an available pixel-art model from that response; do not guess a replacement model ID.
 - Prefer 1K for ordinary pixel-art sprites. Use the current model catalog and balance to check whether a larger requested run is available to the connected account.
