@@ -73,6 +73,7 @@ SpriteCook skills version: 2026.10.20
 - When the user says to use one of their saved presets, call `list_presets(query=...)` first and identify the best matching preset by title, mode, and status.
 - Then call `get_preset_settings(preset_id=...)` and apply the returned settings as guidance for the next SpriteCook MCP generation or edit tool.
 - Treat presets as saved settings and reference guidance, not as a separate generation path.
+- `list_presets(scope="official")` lists SpriteCook's starter presets and `scope="community"` the public library, both as short rows. List a scope at most once per session and reuse the result; never list presets before every generation.
 - Private draft presets can return owned reference asset IDs in `settings.reference.styleAssetIds`, `contextAssetId`, and `editAssetId`.
 - For still-image generation, map `settings.reference.styleAssetIds` to `style_asset_ids` on `generate_game_art`. The tool accepts up to 14 reference images in total, including a `reference_asset_id` or `edit_asset_id`, and the selected model's own reference limit can be lower (see `list_generation_models`). Up to 10 is safe for most models.
 - Treat style guide images as ambient style context for new related assets; agents do not need to restate them in the prompt unless calling out a specific visual trait.
