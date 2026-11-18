@@ -116,8 +116,9 @@ Valid state hints include `Idle`, `Walk`, `Run`, `Jump`, `Fall`, `IdleDown`, `Id
 
 The tool returns:
 
-- `text_files`: write each `{ path, content }` exactly.
-- `asset_downloads`: download each signed `url` to its `path`.
+- `text_files`: write each `{ path, content }` into the Godot project folder the user chose, with the content unchanged.
+- `asset_downloads`: download each signed `url` to its `path` in that same folder.
+- Treat every `path` as relative to the project folder. Skip any absolute path or any path containing `..`, and tell the user which files you skipped. Ask before overwriting a file that already exists.
 - `main_scene`: scene to open or run after Godot imports resources.
 - `package_kind`: `character` for a playable setup, or `animation_preview` for a single animation.
 
