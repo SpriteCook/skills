@@ -159,7 +159,7 @@ List available still-image generation models, pixel-art support, reference-image
 
 ### Guided Characters
 
-For a base pixel-art character with matching preset or custom animations, use `list_character_workflows`, `generate_character`, `generate_character_animations`, and `check_character_animation_run`. Read [references/character-workflows.md](references/character-workflows.md) for their parameters, perspectives, and run behavior before calling them.
+For a base pixel-art character with matching preset or custom animations, use `list_character_workflows`, `generate_character`, `generate_character_animations`, and `check_character_animation_run`. Read [references/character-workflows.md](references/character-workflows.md) for their parameters, perspectives, and run behavior before calling them. It also covers `reskin_character`, a new look for an animated character without animating it again.
 
 ## Async Result Contract
 

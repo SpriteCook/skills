@@ -30,6 +30,7 @@ Still-image generation guidance:
 - Choose the right mode, model, and crop settings
 - Keep style consistency with `reference_asset_id`
 - Use `edit_asset_id` only when modifying an existing SpriteCook asset
+- Give an animated pixel character a new look with `reskin_character` (recolours, materials, outfits on the same body) without animating it again
 
 ### spritecook-polish-sprites
 
@@ -59,6 +60,7 @@ Animation workflow guidance:
 - Use `edge_margin=6` by default for safer framing
 - Write grounded, character-specific motion prompts
 - Use `auto_enhance_prompt=true` when simple prompts like `Idle` or `Attack` are enough
+- Give one finished pixel animation a new look with `reskin_animation`, saved as a new animation asset
 
 ### spritecook-use-assets-in-godot
 

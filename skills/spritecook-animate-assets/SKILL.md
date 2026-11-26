@@ -115,6 +115,15 @@ Animating a full scene redraws the whole frame: static areas such as sky and sto
 
 For effects that belong to the background, such as a waterfall, animate a crop of the plate with `removebg="None"` and `edge_margin=0`, then blend the moving region back with a motion mask.
 
+## New Look for an Existing Animation
+
+To give one finished pixel animation a new look (recolour, material or outfit on the same body) without animating it again, use `reskin_animation(animation_asset_id, description=None, confirm=false, wait_seconds=0)` instead of a new `animate_game_art` run. It keeps every frame's motion and timing and saves a new animation asset. It is only offered when the server has New skin on.
+
+1. Call it without `confirm` for the free check, then poll `check_character_skin(skin_id)` until `planned`. Show the user whether the animation can take the new look, whether it needs extra key frames (frames that move far from the first one), and `price.credits`. If nothing can be painted, nothing is charged; animate a new still instead.
+2. After the user agrees, call it again with `description` and `confirm=true`, then poll `check_character_skin` until `ready`. The new animation is in `output` and `assets` with `sprite_url` and `spritesheet_url`.
+
+New shapes (wings, a bigger weapon, a different body) do not work as a skin. For every animation of a guided character at once, use `reskin_character` (see `spritecook-generate-sprites`, references/character-workflows.md).
+
 ## Prompt Writing
 
 - Inspect the actual source character before writing the prompt.

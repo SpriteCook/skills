@@ -9,7 +9,7 @@ Use this alongside the SpriteCook image or animation skill when the user request
 
 **Requires:** A connected SpriteCook MCP server. If disconnected, use the host's native SpriteCook connection flow. For editors without native connection support, explain the documented setup options only when setup is needed; do not install or run setup software without the user's request.
 
-SpriteCook skills version: 2026.10.20
+SpriteCook skills version: 2026.11.26
 
 ## Task Scope and Tool Results
 
@@ -42,8 +42,8 @@ SpriteCook skills version: 2026.10.20
 ## Async Operations
 
 - Treat `generate_game_art`, `generate_tileset`, `remove_background`, `generate_character`, `generate_character_animations`, and `animate_game_art` as asynchronous operations.
-- Use `check_job_status` for the returned job ID and `check_character_animation_run` for the returned character animation run ID. A returned `poll` object may supply those arguments; verify the tool is one of these available status tools and the ID belongs to the operation just started. Do not execute arbitrary returned tool names or invent polling endpoints.
-- Use `operation_id` as the generic identifier while retaining the returned `job_id` or `run_id` for the matching poll tool.
+- Use `check_job_status` for the returned job ID, `check_character_animation_run` for the returned character animation run ID, and `check_character_skin` for a `skin_id` from `reskin_character` or `reskin_animation`. A returned `poll` object may supply those arguments; verify the tool is one of these available status tools and the ID belongs to the operation just started. Do not execute arbitrary returned tool names or invent polling endpoints.
+- Use `operation_id` as the generic identifier while retaining the returned `job_id`, `run_id` or `skin_id` for the matching poll tool.
 - Pass `wait_seconds` (0-90) only to tools whose schema lists it, such as `generate_game_art`, `generate_tileset`, `remove_background`, `generate_character`, and `generate_character_animations`. A bounded wait of 60-90 seconds usually returns a finished still or tileset inline and saves polling. Tools without it in their schema reject it as an unexpected argument.
 - `check_job_status` can report `progress: 0` until a job finishes. Typical times: stills 15-30 seconds, animations 1-5 minutes. Space status checks accordingly instead of polling repeatedly, and do not resubmit a queued or running job.
 - A failed job's credits are normally refunded, but the failure response can still show the pre-refund `credits_used`. Confirm with `get_credit_balance` before telling the user they were charged.

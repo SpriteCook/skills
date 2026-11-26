@@ -59,3 +59,30 @@ Example custom animation:
 ## `check_character_animation_run`
 
 Check a guided character animation run by id. Returns run status, item statuses, canonical generated `assets`, prep state, failures, and credits.
+
+## New skin: `reskin_character`
+
+Gives an animated pixel character a new look without animating it again. SpriteCook repaints the first frame of each facing's idle and rebuilds every frame of every animation from it, so the moves, frame counts and timing stay the same. Only offered when the server has New skin on; if the tool is missing, it is not available yet.
+
+Use it for enemy variants (a frost boar, a golden boar), team or faction colours, outfits and armour on the same body, materials (stone, gold, ice), and day or season versions. It works best on recolours, materials and clothes that keep the outline. It cannot change the shape: wings, a tail, a bigger weapon or a different body need a new character from `generate_character` instead.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `character_id` | string (required) | - | Base character asset id that already has animations |
+| `description` | string | null | The new look, up to 300 characters, for example "a frost boar with icy blue fur and white tusks" |
+| `animate_rest` | bool | true | Also animate the ones that stay out again from the new character, at the normal animation price |
+| `confirm` | bool | false | `false` runs only the free check; `true` with a description starts the paid paints |
+| `wait_seconds` | int | 0 | Optional bounded wait from 0-90 seconds |
+
+Workflow:
+
+1. Call `reskin_character(character_id)` without `confirm`. The free check returns `status="planning"`; poll `check_character_skin(skin_id)` until it is `planned` (seconds to a minute).
+2. Show the user what the check found: `new_look` (follow the repaint directly), `new_look_with_key_frames` (frames that move too far, such as a jump's airborne frames, follow extra key frames painted on one sheet per facing), and `stay_out` with the reason. With `animate_rest=true` the ones that stay out are animated again from the new character; `price.animate_rest_credits` is that extra cost. Show `price.credits` (one paint per facing plus one per key frame sheet). Paints that fail the outline check are refunded and painted once more.
+3. Only after the user agrees, call `reskin_character(character_id, description=..., animate_rest=..., confirm=true)`.
+4. Poll `check_character_skin(skin_id)` until `ready` or `failed`. Ready returns `new_character_id`, the new character in `character`, and the new animations in `assets` with `sprite_url` and `spritesheet_url`. When `animate_rest` was asked, `animate_rest.poll` points at `check_character_animation_run` for those animations. A failure carries a short `error`, and its credits are refunded.
+
+Write the description as the whole new look, not a change list ("a knight in red and gold armour", not "make the armour red"). Do not ask for new parts sticking out.
+
+## `check_character_skin`
+
+Check a skin from `reskin_character` or `reskin_animation`: `status` (`planning`, `planned`, `painting`, `applying`, `ready`, `failed`), progress per paint in `paints`, results when ready, `credits_used` and `refunded_credits`.
